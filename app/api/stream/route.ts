@@ -35,21 +35,31 @@ export async function GET(request: Request) {
       let dataIntervalId: NodeJS.Timeout | null = null;
       let heartbeatIntervalId: NodeJS.Timeout | null = null;
       let lastDataHash = '';
+      let isClosed = false;
 
       const sendEvent = (data: unknown) => {
+        if (isClosed) return;
         const jsonData = JSON.stringify(data);
         const dataHash = jsonData; // 簡易ハッシュとしてJSON文字列を使用
 
         if (dataHash !== lastDataHash) {
           lastDataHash = dataHash;
-          controller.enqueue(
-            encoder.encode(`data: ${jsonData}\n\n`)
-          );
+          try {
+            controller.enqueue(encoder.encode(`data: ${jsonData}\n\n`));
+          } catch {
+            // クライアント切断済みなどで controller が close 済みの場合がある
+            isClosed = true;
+          }
         }
       };
 
       const sendHeartbeat = () => {
-        controller.enqueue(encoder.encode(': heartbeat\n\n'));
+        if (isClosed) return;
+        try {
+          controller.enqueue(encoder.encode(': heartbeat\n\n'));
+        } catch {
+          isClosed = true;
+        }
       };
 
       // 監視データを取得して送信
@@ -93,23 +103,33 @@ export async function GET(request: Request) {
 
         // リクエストがキャンセルされたらクリーンアップ
         request.signal.addEventListener('abort', () => {
+          isClosed = true;
           if (dataIntervalId) {
             clearInterval(dataIntervalId);
           }
           if (heartbeatIntervalId) {
             clearInterval(heartbeatIntervalId);
           }
-          controller.close();
+          try {
+            controller.close();
+          } catch {
+            // no-op
+          }
         });
       } catch (error) {
         console.error('Stream error:', error);
+        isClosed = true;
         if (dataIntervalId) {
           clearInterval(dataIntervalId);
         }
         if (heartbeatIntervalId) {
           clearInterval(heartbeatIntervalId);
         }
-        controller.close();
+        try {
+          controller.close();
+        } catch {
+          // no-op
+        }
       }
     },
   });

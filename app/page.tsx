@@ -25,7 +25,6 @@ export default function HomePage() {
   // 総計統計を計算
   const totalMembers = React.useMemo(() => teams.reduce((sum, t) => sum + t.memberCount, 0), [teams]);
   const totalActiveTasks = React.useMemo(() => teams.reduce((sum, t) => sum + t.activeTasks, 0), [teams]);
-  const activeTeamsCount = React.useMemo(() => teams.filter(t => t.isActive).length, [teams]);
 
   // チーム一覧を取得
   const fetchTeams = React.useCallback(async () => {
@@ -189,11 +188,11 @@ export default function HomePage() {
                 </div>
                 <div className="space-y-1">
                   <h1 className="text-4xl lg:text-6xl font-black italic uppercase tracking-tighter text-white ember-text">
-                    Inferno Legion
+                    魔王軍 AGI
                   </h1>
                   <p className="text-amber-glow font-bold tracking-[0.3em] text-xs lg:text-sm uppercase flex items-center gap-2">
                     <span className="h-px w-6 lg:w-8 bg-amber-glow"></span>
-                    Elite Vanguard Unit
+                    Team Monitor Dashboard
                   </p>
                 </div>
               </div>
@@ -336,7 +335,7 @@ export default function HomePage() {
           {/* フッター */}
           <footer className="text-center py-8 border-t border-white/5 mt-12">
             <p className="text-stone-600 text-sm">
-              Inferno Legion Command Center v0.1.0
+              魔王軍 AGI ダッシュボード v0.1.0
             </p>
             <p className="text-stone-700 text-xs mt-1">
               ……ふふ、私がここで待ってるから
@@ -479,7 +478,7 @@ export default function HomePage() {
               ) : (
                 <div>
                   {teamInboxes ? (
-                    <TeamInboxesView teamName={selectedTeam.config.name} inboxes={teamInboxes.agents} />
+                    <TeamInboxesView inboxes={teamInboxes.agents} />
                   ) : (
                     <div className="text-center py-12 text-stone-500">
                       メッセージデータを読み込み中...

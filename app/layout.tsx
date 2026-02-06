@@ -17,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Inferno Legion Command Center | Agent ZERO",
-  description: "魔王軍団の全軍を統括する指揮システム - Inferno Legion Command Center",
+  title: "魔王軍 AGI ダッシュボード",
+  description: "魔王軍のチームとタスクを統括・監視するAGIダッシュボード",
 };
 
 export default function RootLayout({
@@ -29,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className="dark">
       <head>
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"

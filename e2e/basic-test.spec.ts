@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('魔王軍団ダッシュボード', () => {
+test.describe('魔王軍 AGI ダッシュボード', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3003');
   });
 
   test('ページが表示される', async ({ page }) => {
     // タイトルを確認
-    await expect(page).toHaveTitle(/魔王軍団ダッシュボード/);
+    await expect(page).toHaveTitle(/魔王軍 AGI ダッシュボード/);
 
     // ダークモードが適用されている
     const html = page.locator('html');

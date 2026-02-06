@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { MessageSquare, Check, CheckCheck, Clock, User } from 'lucide-react';
+import { MessageSquare, Check, Clock, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
-import { cn, formatTime } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import type { AgentInbox, InboxMessage } from '@/types';
 
 interface AgentInboxViewProps {
@@ -56,7 +56,7 @@ function MessageItem({ message }: { message: InboxMessage }) {
         displayText = `👋 シャットダウンリクエスト`;
       }
     }
-  } catch (e) {
+  } catch {
     // JSONでない場合はそのまま表示
   }
 
@@ -197,11 +197,10 @@ export function AgentInboxView({ inbox }: AgentInboxViewProps) {
 }
 
 interface TeamInboxesViewProps {
-  teamName: string;
   inboxes: AgentInbox[];
 }
 
-export function TeamInboxesView({ teamName, inboxes }: TeamInboxesViewProps) {
+export function TeamInboxesView({ inboxes }: TeamInboxesViewProps) {
   const totalUnread = inboxes.reduce((sum, inbox) => sum + inbox.unreadCount, 0);
 
   return (

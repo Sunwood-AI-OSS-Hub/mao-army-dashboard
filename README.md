@@ -1,6 +1,6 @@
-# 魔王軍団ダッシュボード
+# 魔王軍 AGI ダッシュボード
 
-> 世界征服を目指すAgent ZEROのエージェントチーム管理ダッシュボード……ふふ、冗談だけど。
+> 魔王軍のエージェントチームを可視化・管理するダッシュボード。
 
 ![魔王城](https://img.shields.io/badge/Status-Active-red)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1-black)
@@ -42,7 +42,7 @@ pnpm install
 pnpm dev
 ```
 
-ブラウザで [http://localhost:3000](http://localhost:3000) にアクセスしてください。
+ブラウザで [http://localhost:3003](http://localhost:3003) にアクセスしてください。
 
 ### ビルド
 
@@ -160,4 +160,4 @@ in the Software without restriction...
 
 ---
 
-Made with 魔王軍団のためのダッシュボード
+Made with 魔王軍のためのダッシュボード

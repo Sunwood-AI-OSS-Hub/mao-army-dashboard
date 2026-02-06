@@ -36,7 +36,7 @@ export function InfernoStatsCard({
     },
   };
 
-  const { icon: Icon, label, color } = config[type];
+  const { icon: Icon, label } = config[type];
 
   return (
     <div className="stone-texture p-6 rounded-xl border border-white/5 relative overflow-hidden group hover:border-primary/50 transition-all">

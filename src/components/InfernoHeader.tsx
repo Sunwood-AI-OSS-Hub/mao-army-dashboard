@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Search, Bell } from 'lucide-react';
+import Image from 'next/image';
 
 interface InfernoHeaderProps {
   userName?: string;
@@ -20,7 +21,7 @@ export function InfernoHeader({
       <div className="flex items-center gap-3">
         <span className="material-symbols-outlined text-primary text-2xl">security</span>
         <h2 className="text-lg lg:text-xl font-bold tracking-tighter uppercase italic ember-text text-white">
-          Inferno Legion
+          魔王軍 AGI ダッシュボード
         </h2>
       </div>
 
@@ -45,10 +46,13 @@ export function InfernoHeader({
         <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-xs font-bold text-stone-500 hidden sm:block">{userName}</span>
           <div className="size-9 rounded-full bg-stone-900 border border-primary/50 glow-red overflow-hidden">
-            <img
+            <Image
               className="w-full h-full object-cover"
               src={userAvatar}
               alt="User Avatar"
+              width={36}
+              height={36}
+              unoptimized
             />
           </div>
         </div>

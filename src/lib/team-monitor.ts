@@ -173,7 +173,7 @@ export async function loadAllTeams(): Promise<TeamConfig[]> {
 
           // メンバー情報を更新
           config.members = actualMembers;
-        } catch (e) {
+        } catch {
           // inboxesディレクトリがない場合はconfig.jsonのまま
           console.log(`No inboxes directory for ${teamDir.name}, using config.json members`);
         }

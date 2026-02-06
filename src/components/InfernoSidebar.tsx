@@ -38,10 +38,10 @@ export function InfernoSidebar() {
           </div>
           <div>
             <h1 className="text-white text-lg font-bold leading-tight tracking-tight uppercase italic">
-              Agent ZERO
+              魔王軍
             </h1>
             <p className="text-primary text-[10px] font-bold tracking-[0.2em] uppercase">
-              Command Center
+              AGI Dashboard
             </p>
           </div>
         </div>
