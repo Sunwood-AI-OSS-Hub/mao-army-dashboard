@@ -6,25 +6,66 @@ import {
   InfernoSidebar,
   InfernoHeader,
   InfernoStatsCard,
-  InfernoActivityLog,
   InfernoTeamCard,
 } from '@/components';
 import { Button } from '@/components/ui';
 import { Card, CardContent } from '@/components/ui/card';
 import { TeamInboxesView } from '@/components/AgentInboxView';
 import type { TeamSummary, TeamMonitorData, TeamInboxData } from '@/types';
+import type { SidebarView } from '@/components/InfernoSidebar';
+
+type View = SidebarView;
+
+function normalizeQuery(q: string) {
+  return q.trim().toLowerCase();
+}
 
 export default function HomePage() {
   const [teams, setTeams] = React.useState<TeamSummary[]>([]);
+  const [monitorData, setMonitorData] = React.useState<TeamMonitorData[]>([]);
   const [selectedTeam, setSelectedTeam] = React.useState<TeamMonitorData | null>(null);
   const [teamInboxes, setTeamInboxes] = React.useState<TeamInboxData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<'info' | 'inbox'>('info');
+  const [view, setView] = React.useState<View>('overview');
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [vaultLoading, setVaultLoading] = React.useState(false);
+  const [vaultError, setVaultError] = React.useState<string | null>(null);
+  const [vaultData, setVaultData] = React.useState<TeamInboxData[] | null>(null);
 
   // 総計統計を計算
   const totalMembers = React.useMemo(() => teams.reduce((sum, t) => sum + t.memberCount, 0), [teams]);
   const totalActiveTasks = React.useMemo(() => teams.reduce((sum, t) => sum + t.activeTasks, 0), [teams]);
+
+  const vaultUnreadCount = React.useMemo(() => {
+    if (!vaultData) return 0;
+    return vaultData.reduce((sum, team) => {
+      const teamUnread = team.agents.reduce((s, a) => s + a.unreadCount, 0);
+      return sum + teamUnread;
+    }, 0);
+  }, [vaultData]);
+
+  const filteredTeams = React.useMemo(() => {
+    const q = normalizeQuery(searchQuery);
+    if (!q) return teams;
+    return teams.filter(t =>
+      `${t.name} ${t.description}`.toLowerCase().includes(q)
+    );
+  }, [teams, searchQuery]);
+
+  const allTasks = React.useMemo(() => {
+    const q = normalizeQuery(searchQuery);
+    const tasks = monitorData.flatMap(team => team.tasks.map(task => ({
+      teamName: team.config.name,
+      task,
+    })));
+    if (!q) return tasks;
+    return tasks.filter(({ teamName, task }) => {
+      const hay = `${teamName} ${task.subject} ${task.description ?? ''} ${task.owner ?? ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [monitorData, searchQuery]);
 
   // チーム一覧を取得
   const fetchTeams = React.useCallback(async () => {
@@ -46,7 +87,7 @@ export default function HomePage() {
   }, []);
 
   // チーム詳細を取得
-  const fetchTeamDetail = React.useCallback(async (teamName: string) => {
+  const fetchTeamDetail = React.useCallback(async (teamName: string, initialTab: 'info' | 'inbox' = 'info') => {
     try {
       const response = await fetch(`/api/tasks/${teamName}`);
       if (!response.ok) {
@@ -63,7 +104,7 @@ export default function HomePage() {
       }
 
       // タブをリセット
-      setActiveTab('info');
+      setActiveTab(initialTab);
     } catch (err) {
       console.error('Error fetching team detail:', err);
     }
@@ -82,6 +123,7 @@ export default function HomePage() {
       try {
         const message = JSON.parse(event.data);
         if (message.type === 'update' && message.data) {
+          setMonitorData(message.data);
           // チーム一覧を更新
           const summaries = message.data.map((d: TeamMonitorData) => ({
             name: d.config.name,
@@ -113,8 +155,8 @@ export default function HomePage() {
     };
   }, [selectedTeam]);
 
-  const handleTeamClick = (team: TeamSummary) => {
-    fetchTeamDetail(team.name);
+  const handleTeamClick = (team: TeamSummary, initialTab: 'info' | 'inbox' = 'info') => {
+    fetchTeamDetail(team.name, initialTab);
   };
 
   const handleCloseModal = () => {
@@ -123,50 +165,46 @@ export default function HomePage() {
     setActiveTab('info');
   };
 
-  // サンプルアクティビティデータ
-  const sampleActivities = [
-    {
-      id: '1',
-      type: 'new_agent' as const,
-      title: 'New Agent Joined',
-      description: 'Abyssal Knight V-99 has sworn fealty.',
-      time: '2m ago',
-      highlighted: true,
-    },
-    {
-      id: '2',
-      type: 'task_assigned' as const,
-      title: 'Task Assigned',
-      description: 'Succubus-01 tasked with Diplomatic Sabotage.',
-      time: '1h ago',
-      highlighted: true,
-    },
-    {
-      id: '3',
-      type: 'scheme_initiated' as const,
-      title: 'Scheme Initiated',
-      description: "Scheme 'Eternal Eclipse' phase 2 activated.",
-      time: '3h ago',
-      highlighted: true,
-    },
-    {
-      id: '4',
-      type: 'new_intel' as const,
-      title: 'New Intel',
-      description: '"The barrier is weakening at the northern gate..."',
-      time: '6h ago',
-    },
-  ];
+  const fetchVault = React.useCallback(async () => {
+    try {
+      setVaultLoading(true);
+      setVaultError(null);
+      const res = await fetch('/api/inboxes');
+      if (!res.ok) throw new Error('Vaultデータの取得に失敗しました');
+      const data = await res.json();
+      setVaultData(data);
+    } catch (e) {
+      setVaultError(e instanceof Error ? e.message : '不明なエラー');
+    } finally {
+      setVaultLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (view !== 'vault') return;
+    if (vaultData) return;
+    fetchVault();
+  }, [view, vaultData, fetchVault]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background-dark">
       {/* サイドバー */}
-      <InfernoSidebar />
+      <InfernoSidebar
+        activeView={view}
+        onNavigate={(v) => setView(v)}
+        onRefresh={() => fetchTeams()}
+        vaultUnreadCount={vaultUnreadCount}
+      />
 
       {/* メインコンテンツ */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* ヘッダー */}
-        <InfernoHeader />
+        <InfernoHeader
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          onOpenVault={() => setView('vault')}
+          vaultUnreadCount={vaultUnreadCount}
+        />
 
         {/* コンテンツエリア */}
         <div className="flex-1 overflow-y-auto p-6 lg:p-8">
@@ -201,17 +239,54 @@ export default function HomePage() {
 
           {/* タブ */}
           <div className="border-b border-white/5 flex gap-8 lg:gap-10 mb-8">
-            <button className="pb-4 border-b-2 border-primary text-primary font-bold text-sm tracking-widest uppercase ember-text">
+            <button
+              type="button"
+              onClick={() => setView('overview')}
+              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+                view === 'overview'
+                  ? 'border-primary text-primary ember-text'
+                  : 'border-transparent text-stone-500 hover:text-white'
+              }`}
+            >
               Overview
             </button>
-            <button className="pb-4 border-b-2 border-transparent text-stone-500 hover:text-white font-bold text-sm tracking-widest uppercase transition-colors">
+            <button
+              type="button"
+              onClick={() => setView('teams')}
+              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+                view === 'teams'
+                  ? 'border-primary text-primary ember-text'
+                  : 'border-transparent text-stone-500 hover:text-white'
+              }`}
+            >
               Team Roster
             </button>
-            <button className="pb-4 border-b-2 border-transparent text-stone-500 hover:text-white font-bold text-sm tracking-widest uppercase transition-colors">
+            <button
+              type="button"
+              onClick={() => setView('missions')}
+              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+                view === 'missions'
+                  ? 'border-primary text-primary ember-text'
+                  : 'border-transparent text-stone-500 hover:text-white'
+              }`}
+            >
               Mission Log
             </button>
-            <button className="pb-4 border-b-2 border-transparent text-stone-500 hover:text-white font-bold text-sm tracking-widest uppercase transition-colors">
+            <button
+              type="button"
+              onClick={() => setView('vault')}
+              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+                view === 'vault'
+                  ? 'border-primary text-primary ember-text'
+                  : 'border-transparent text-stone-500 hover:text-white'
+              }`}
+            >
               The Vault
+              {vaultUnreadCount > 0 ? (
+                <span className="ml-2 inline-flex items-center justify-center bg-lava-red text-white text-[10px] leading-none px-1.5 py-0.5 rounded-full font-bold border border-white/10">
+                  {vaultUnreadCount > 99 ? '99+' : vaultUnreadCount}
+                </span>
+              ) : null}
             </button>
           </div>
 
@@ -230,35 +305,33 @@ export default function HomePage() {
           )}
 
           {/* コンテンツグリッド */}
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            {/* 左側 - メインコンテンツ */}
-            <div className="col-span-1 xl:col-span-8 space-y-8">
-              {/* 統計カード */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <InfernoStatsCard
-                  type="soldiers"
-                  value={totalMembers}
-                  change="12"
-                  description="Ready for deployment"
-                />
-                <InfernoStatsCard
-                  type="conquests"
-                  value={teams.reduce((sum, t) => sum + t.completedTasks, 0)}
-                  change="5"
-                  description="Missions completed"
-                />
-                <InfernoStatsCard
-                  type="schemes"
-                  value={totalActiveTasks}
-                  status={totalActiveTasks > 0 ? 'active' : undefined}
-                  description={totalActiveTasks > 0 ? 'Operations in progress' : 'No active operations'}
-                />
-              </div>
+          {/* 統計カード（全ビュー共通） */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <InfernoStatsCard
+              type="soldiers"
+              value={totalMembers}
+              description="Total members"
+            />
+            <InfernoStatsCard
+              type="conquests"
+              value={teams.reduce((sum, t) => sum + t.completedTasks, 0)}
+              description="Tasks completed"
+            />
+            <InfernoStatsCard
+              type="schemes"
+              value={totalActiveTasks}
+              status={totalActiveTasks > 0 ? 'active' : undefined}
+              description={totalActiveTasks > 0 ? 'Tasks in progress' : 'No active tasks'}
+            />
+          </div>
 
+          {/* Overview / Teams */}
+          {(view === 'overview' || view === 'teams') && (
+            <div className="space-y-8">
               {/* 操作バー */}
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white uppercase tracking-tight">
-                  Active Legions
+                  {view === 'teams' ? 'Team Roster' : 'Active Legions'}
                 </h2>
                 <Button
                   data-testid="refresh-button"
@@ -272,65 +345,170 @@ export default function HomePage() {
                 </Button>
               </div>
 
-              {/* チーム一覧 */}
-              {!loading && teams.length === 0 && (
+              {!loading && filteredTeams.length === 0 && (
                 <div className="text-center py-12 text-stone-500">
-                  軍団がありません
+                  {searchQuery ? '一致する軍団がありません' : '軍団がありません'}
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {teams.map((team) => (
+                {filteredTeams.map((team) => (
                   <InfernoTeamCard
                     key={team.name}
                     team={team}
-                    onClick={() => handleTeamClick(team)}
+                    onClick={() => handleTeamClick(team, 'info')}
                   />
                 ))}
               </div>
+            </div>
+          )}
 
-              {/* 優先タスクセクション（サンプル） */}
-              <div className="bg-stone-900 border border-white/5 rounded-xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-lg font-bold italic uppercase tracking-tighter text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">priority_high</span>
-                    Priority Schemes
-                  </h3>
-                  <button className="text-xs font-bold text-primary hover:text-amber-glow transition-colors uppercase tracking-widest">
-                    View All Missions
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  {/* サンプルタスク */}
-                  <div className="flex items-center justify-between p-5 bg-black/40 border border-white/5 rounded-lg hover:border-primary/30 transition-all group">
-                    <div className="flex items-center gap-4">
-                      <div className="size-12 rounded bg-primary/10 flex items-center justify-center text-primary glow-red">
-                        <span className="material-symbols-outlined">auto_fix_high</span>
-                      </div>
-                      <div>
-                        <p className="font-bold text-stone-100 group-hover:text-primary transition-colors">
-                          Operation: Eternal Eclipse
-                        </p>
-                        <p className="text-xs text-stone-500 font-medium">Target: High Heaven Sanctum</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="w-40 h-2 bg-stone-800 rounded-full overflow-hidden border border-white/5">
-                        <div className="bg-gradient-to-r from-lava-red to-primary h-full" style={{ width: '75%' }} />
-                      </div>
-                      <p className="text-[10px] font-bold text-primary mt-1.5 tracking-tighter">75% CORRUPTION</p>
-                    </div>
-                  </div>
-                </div>
+          {/* Mission Log */}
+          {view === 'missions' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white uppercase tracking-tight">
+                  Mission Log
+                </h2>
+                <Button
+                  onClick={fetchTeams}
+                  disabled={loading}
+                  variant="outline"
+                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-white"
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
               </div>
-            </div>
 
-            {/* 右側 - アクティビティログ */}
-            <div className="col-span-1 xl:col-span-4">
-              <InfernoActivityLog activities={sampleActivities} />
+              <Card className="bg-stone-900/60 border-white/5">
+                <CardContent className="p-6">
+                  {allTasks.length === 0 ? (
+                    <div className="text-center py-12 text-stone-500">
+                      タスクがありません（SSEの初回更新待ちの可能性があります）
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {allTasks
+                        .slice()
+                        .sort((a, b) => (a.task.status === b.task.status ? 0 : a.task.status === 'in_progress' ? -1 : 1))
+                        .map(({ teamName, task }) => (
+                          <button
+                            key={`${teamName}:${task.id}`}
+                            type="button"
+                            onClick={() => fetchTeamDetail(teamName, 'info')}
+                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-all"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="min-w-0">
+                                <div className="text-xs text-stone-500 font-bold uppercase tracking-widest">
+                                  {teamName}
+                                </div>
+                                <div className="text-stone-100 font-bold truncate">
+                                  {task.subject}
+                                </div>
+                                {task.description ? (
+                                  <div className="text-sm text-stone-400 mt-1 line-clamp-2">
+                                    {task.description}
+                                  </div>
+                                ) : null}
+                              </div>
+                              <div className={`shrink-0 text-xs px-2 py-1 rounded-full ${
+                                task.status === 'completed'
+                                  ? 'bg-green-900/50 text-green-300'
+                                  : task.status === 'in_progress'
+                                  ? 'bg-amber-900/50 text-amber-300'
+                                  : 'bg-blue-900/50 text-blue-300'
+                              }`}>
+                                {task.status === 'completed' ? '完了' : task.status === 'in_progress' ? '進行中' : '待機中'}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          </div>
+          )}
+
+          {/* The Vault */}
+          {view === 'vault' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white uppercase tracking-tight">
+                  The Vault (Inboxes)
+                </h2>
+                <Button
+                  onClick={fetchVault}
+                  disabled={vaultLoading}
+                  variant="outline"
+                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-white"
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${vaultLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+
+              {vaultError ? (
+                <div className="mb-6 p-4 rounded-lg bg-red-900/20 border border-red-700/50 text-red-200">
+                  {vaultError}
+                </div>
+              ) : null}
+
+              <Card className="bg-stone-900/60 border-white/5">
+                <CardContent className="p-6">
+                  {vaultLoading && !vaultData ? (
+                    <div className="text-center py-12 text-stone-500">
+                      読み込み中...
+                    </div>
+                  ) : vaultData && vaultData.length === 0 ? (
+                    <div className="text-center py-12 text-stone-500">
+                      inbox がありません
+                    </div>
+                  ) : vaultData ? (
+                    <div className="space-y-3">
+                      {vaultData.map((team) => {
+                        const teamUnread = team.agents.reduce((s, a) => s + a.unreadCount, 0);
+                        return (
+                          <button
+                            key={team.teamName}
+                            type="button"
+                            onClick={() => fetchTeamDetail(team.teamName, 'inbox')}
+                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-all"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="min-w-0">
+                                <div className="text-stone-100 font-bold truncate">
+                                  {team.teamName}
+                                </div>
+                                <div className="text-xs text-stone-500 mt-1">
+                                  agents: {team.agents.length}
+                                </div>
+                              </div>
+                              {teamUnread > 0 ? (
+                                <span className="shrink-0 bg-lava-red text-white text-[10px] leading-none px-2 py-1 rounded-full font-bold border border-white/10">
+                                  {teamUnread > 99 ? '99+' : teamUnread} unread
+                                </span>
+                              ) : (
+                                <span className="shrink-0 text-xs text-stone-600">
+                                  0 unread
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-stone-500">
+                      Vaultデータがありません
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* フッター */}
           <footer className="text-center py-8 border-t border-white/5 mt-12">

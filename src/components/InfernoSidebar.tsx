@@ -1,33 +1,41 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import {
   Dashboard,
   Group,
   Assignment,
   ChatBubble,
-  Settings,
   AddCircle,
 } from './InfernoIcons';
 
+export type SidebarView = 'overview' | 'teams' | 'missions' | 'vault';
+
 interface NavItem {
-  href: string;
+  view: SidebarView;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   badge?: number | string;
-  active?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { href: '#', icon: Dashboard, label: 'Overview', active: true },
-  { href: '#teams', icon: Group, label: 'Teams' },
-  { href: '#tasks', icon: Assignment, label: 'Tasks' },
-  { href: '#messages', icon: ChatBubble, label: 'Messages', badge: 12 },
-  { href: '#settings', icon: Settings, label: 'Settings' },
+  { view: 'overview', icon: Dashboard, label: 'Overview' },
+  { view: 'teams', icon: Group, label: 'Teams' },
+  { view: 'missions', icon: Assignment, label: 'Mission Log' },
+  { view: 'vault', icon: ChatBubble, label: 'Vault' },
 ];
 
-export function InfernoSidebar() {
+export function InfernoSidebar({
+  activeView,
+  onNavigate,
+  onRefresh,
+  vaultUnreadCount,
+}: {
+  activeView: SidebarView;
+  onNavigate: (view: SidebarView) => void;
+  onRefresh: () => void;
+  vaultUnreadCount?: number;
+}) {
   return (
     <aside className="w-64 flex-shrink-0 burnt-sidebar border-r border-primary/20 flex flex-col justify-between z-20">
       <div className="p-6 relative z-10">
@@ -50,33 +58,43 @@ export function InfernoSidebar() {
         <nav className="space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
+            const isActive = item.view === activeView;
+            const badge =
+              item.view === 'vault'
+                ? (vaultUnreadCount && vaultUnreadCount > 0 ? vaultUnreadCount : undefined)
+                : item.badge;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded transition-all ${
-                  item.active
+              <button
+                key={item.view}
+                type="button"
+                onClick={() => onNavigate(item.view)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-all ${
+                  isActive
                     ? 'bg-primary/20 border-l-4 border-primary text-white font-semibold glow-red'
                     : 'text-stone-500 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="flex-1">{item.label}</span>
-                {item.badge && (
+                {badge !== undefined && (
                   <span className="ml-auto bg-lava-red text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                    {item.badge}
+                    {badge}
                   </span>
                 )}
-              </Link>
+              </button>
             );
           })}
         </nav>
       </div>
 
       <div className="p-6 relative z-10">
-        <button className="w-full flex items-center justify-center gap-2 py-3 rounded bg-stone-900 border border-primary/30 text-primary font-bold hover:bg-primary hover:text-white transition-all uppercase tracking-widest text-xs glow-amber">
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded bg-stone-900 border border-primary/30 text-primary font-bold hover:bg-primary hover:text-white transition-all uppercase tracking-widest text-xs glow-amber"
+        >
           <AddCircle className="w-4 h-4" />
-          New Scheme
+          Refresh
         </button>
       </div>
     </aside>
