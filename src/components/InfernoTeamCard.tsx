@@ -55,19 +55,19 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
 
         {/* 統計情報 */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-[color:var(--border-weak)]">
+          <div className="flex flex-col items-center rounded-lg bg-[color:var(--surface-muted)] p-3 border border-[color:var(--border-weak)]">
             <Users className="mb-1 h-4 w-4 text-primary" />
             <span className="text-2xl font-bold text-stone-100">{team.memberCount}</span>
             <span className="text-[10px] text-stone-500 uppercase">Members</span>
           </div>
 
-          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-[color:var(--border-weak)]">
+          <div className="flex flex-col items-center rounded-lg bg-[color:var(--surface-muted)] p-3 border border-[color:var(--border-weak)]">
             <Clock className="mb-1 h-4 w-4 text-amber-glow" />
             <span className="text-2xl font-bold text-stone-100">{team.activeTasks}</span>
             <span className="text-[10px] text-stone-500 uppercase">Active</span>
           </div>
 
-          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-[color:var(--border-weak)]">
+          <div className="flex flex-col items-center rounded-lg bg-[color:var(--surface-muted)] p-3 border border-[color:var(--border-weak)]">
             <CheckCircle2 className="mb-1 h-4 w-4 text-green-400" />
             <span className="text-2xl font-bold text-stone-100">{team.completedTasks}</span>
             <span className="text-[10px] text-stone-500 uppercase">Done</span>
@@ -81,7 +81,7 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
               <span className="text-stone-500 uppercase tracking-wider">Progress</span>
               <span className="font-bold text-stone-300">{completionRate}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-stone-900 border border-[color:var(--border-weak)]">
+            <div className="h-2 overflow-hidden rounded-full bg-stone-800 border border-[color:var(--border-weak)]">
               <div
                 className={cn(
                   'h-full rounded-full transition-all duration-500 ease-out',

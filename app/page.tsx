@@ -268,7 +268,7 @@ export default function HomePage() {
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <h1 className="text-4xl lg:text-6xl font-black italic uppercase tracking-tighter text-white ember-text">
+                  <h1 className="text-4xl lg:text-6xl font-black italic uppercase tracking-tighter text-stone-100 ember-text">
                     {theme === 'light' ? 'Agent Teams' : '魔王軍 AGI'}
                   </h1>
                   <p className="text-amber-glow font-bold tracking-[0.3em] text-xs lg:text-sm uppercase flex items-center gap-2">
@@ -440,7 +440,7 @@ export default function HomePage() {
                             key={`${teamName}:${task.id}`}
                             type="button"
                             onClick={() => fetchTeamDetail(teamName, 'info')}
-                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-[color:var(--border-weak)] hover:border-primary/30 transition-all"
+                            className="w-full text-left p-4 rounded-lg bg-[color:var(--surface-muted)] border border-[color:var(--border-weak)] hover:border-primary/30 transition-all"
                           >
                             <div className="flex items-center justify-between gap-4">
                               <div className="min-w-0">
@@ -518,7 +518,7 @@ export default function HomePage() {
                             key={team.teamName}
                             type="button"
                             onClick={() => fetchTeamDetail(team.teamName, 'inbox')}
-                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-[color:var(--border-weak)] hover:border-primary/30 transition-all"
+                            className="w-full text-left p-4 rounded-lg bg-[color:var(--surface-muted)] border border-[color:var(--border-weak)] hover:border-primary/30 transition-all"
                           >
                             <div className="flex items-center justify-between gap-4">
                               <div className="min-w-0">
@@ -633,7 +633,7 @@ export default function HomePage() {
                       {selectedTeam.config.members.map((member) => (
                         <div
                           key={member.agentId}
-                          className="p-3 rounded-lg bg-black/30 border border-[color:var(--border-weak)]"
+                          className="p-3 rounded-lg bg-[color:var(--surface-muted)] border border-[color:var(--border-weak)]"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div>
@@ -670,7 +670,7 @@ export default function HomePage() {
                         {selectedTeam.tasks.map((task) => (
                           <div
                             key={task.id}
-                            className="p-3 rounded-lg bg-black/30 border border-[color:var(--border-weak)]"
+                            className="p-3 rounded-lg bg-[color:var(--surface-muted)] border border-[color:var(--border-weak)]"
                           >
                             <div className="flex items-center justify-between mb-1">
                               <span className="font-semibold text-stone-100">{task.subject}</span>

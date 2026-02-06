@@ -35,6 +35,7 @@
   --background: var(--background-dark);
   --foreground: var(--stone-100);
   --border-weak: rgba(255, 255, 255, 0.06);
+  --surface-muted: rgba(0, 0, 0, 0.30);
 
   /* ステータスカラー */
   --status-active: #00ff88;
@@ -69,11 +70,15 @@ html.light {
   --stone-600: #94a3b8; /* slate-400 */
 
   --border-weak: rgba(226, 232, 240, 1); /* silver */
+  --surface-muted: rgba(15, 23, 42, 0.04); /* slate-900 @ 4% */
 
   /* Tone down glows for light surfaces */
   --glow-red: rgba(43, 140, 238, 0.18);
   --glow-red-intense: rgba(43, 140, 238, 0.24);
   --glow-amber: rgba(212, 175, 55, 0.18);
+
+  /* Use gold as "amber" accent in radiant theme */
+  --amber-glow: var(--gold);
 }
 
 @theme inline {
@@ -202,6 +207,15 @@ body {
   }
 }
 
+@keyframes radiant-text-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(43, 140, 238, 0.18), 0 0 18px rgba(212, 175, 55, 0.10);
+  }
+  50% {
+    text-shadow: 0 0 14px rgba(43, 140, 238, 0.26), 0 0 24px rgba(212, 175, 55, 0.14);
+  }
+}
+
 /* ============================================
    ユーティリティクラス
    ============================================ */
@@ -246,6 +260,10 @@ html.light .stone-texture {
 
 .ember-text {
   animation: ember-text-glow 2s ease-in-out infinite;
+}
+
+html.light .ember-text {
+  animation: radiant-text-glow 2.4s ease-in-out infinite;
 }
 
 /* ============================================
