@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_JP } from "next/font/google";
+import { Noto_Sans_JP, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -9,9 +9,16 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "魔王軍団ダッシュボード | Agent ZERO",
-  description: "魔王城の全軍団を統括する指揮システム",
+  title: "Inferno Legion Command Center | Agent ZERO",
+  description: "魔王軍団の全軍を統括する指揮システム - Inferno Legion Command Center",
 };
 
 export default function RootLayout({
@@ -21,8 +28,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className="dark">
-      <body className={`${notoSansJP.variable} antialiased`}>
-        <div className="min-h-screen">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        />
+      </head>
+      <body className={`${notoSansJP.variable} ${spaceGrotesk.variable} antialiased`}>
+        <div className="min-h-screen font-display">
           {children}
         </div>
       </body>
