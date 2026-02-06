@@ -46,7 +46,7 @@ export function InfernoHeader({
         <h2
           className={[
             'text-lg lg:text-xl font-bold tracking-tighter uppercase italic',
-            isDark ? 'ember-text text-white' : 'text-stone-900',
+            isDark ? 'ember-text text-white' : 'text-foreground',
           ].join(' ')}
         >
           {appName}
@@ -65,7 +65,7 @@ export function InfernoHeader({
             'rounded pl-10 pr-4 py-1.5 text-sm w-64 focus:outline-none focus:ring-1 transition-all',
             isDark
               ? 'bg-stone-900 border border-white/5 text-stone-300 focus:ring-primary focus:border-primary'
-              : 'bg-white border border-black/10 text-stone-900 focus:ring-primary focus:border-primary',
+              : 'bg-white border border-black/10 text-foreground focus:ring-primary focus:border-primary',
           ].join(' ')}
         />
       </div>
