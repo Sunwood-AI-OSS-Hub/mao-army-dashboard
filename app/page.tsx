@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import { RefreshCw, X, MessageSquare } from 'lucide-react';
+import Image from 'next/image';
+import heroImage from '../image2.png';
 import {
   InfernoSidebar,
   InfernoHeader,
@@ -213,8 +215,15 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/20 to-transparent z-10" />
             <div className="absolute inset-0 bg-gradient-to-r from-background-dark/80 via-transparent to-transparent z-10" />
 
-            {/* 背景画像（サンプル） */}
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900" />
+            {/* ヒーロー背景画像 */}
+            <Image
+              src={heroImage}
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 1200px"
+              className="absolute inset-0 object-cover object-center"
+            />
 
             {/* コンテンツ */}
             <div className="absolute bottom-8 lg:bottom-10 left-6 lg:left-10 z-20">
