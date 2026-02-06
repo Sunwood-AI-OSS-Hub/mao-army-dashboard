@@ -1,0 +1,400 @@
+@import "tailwindcss";
+
+/* ============================================
+   魔王軍団カラーパレット
+   ============================================ */
+:root {
+  /* ダークパープル基調 */
+  --color-abyss: #0a0a0f;
+  --color-void: #12121a;
+  --color-shadow: #1a1a2e;
+  --color-depth: #16213e;
+  --color-mystic: #2d1b4e;
+  --color-ruby: #8b1a1a;
+  --color-crimson: #c41e3a;
+  --color-flame: #ff4500;
+  --color-ember: #ff6b35;
+  --color-spectral: #9d4edd;
+  --color-phantom: #7b2cbf;
+  --color-nether: #5a189a;
+  --color-soul: #e0aaff;
+  --color-spirit: #f5f5f5;
+
+  /* セマンティックカラー */
+  --background: var(--color-abyss);
+  --foreground: var(--color-spirit);
+
+  /* ステータスカラー */
+  --status-active: #00ff88;
+  --status-busy: #ffaa00;
+  --status-idle: #6b7280;
+  --status-offline: #3b3b3b;
+  --status-pending: #3b82f6;
+  --status-in-progress: #eab308;
+  --status-completed: #22c55e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-abyss: var(--color-abyss);
+  --color-void: var(--color-void);
+  --color-shadow: var(--color-shadow);
+  --color-mystic: var(--color-mystic);
+  --color-ruby: var(--color-ruby);
+  --color-crimson: var(--color-crimson);
+  --color-flame: var(--color-flame);
+  --color-ember: var(--color-ember);
+  --color-spectral: var(--color-spectral);
+  --color-phantom: var(--color-phantom);
+  --color-nether: var(--color-nether);
+  --color-soul: var(--color-soul);
+}
+
+/* ============================================
+   ベーススタイル
+   ============================================ */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, var(--color-abyss) 0%, var(--color-void) 50%, var(--color-depth) 100%);
+  color: var(--foreground);
+  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   炎のアニメーション
+   ============================================ */
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  25% {
+    opacity: 0.9;
+    transform: scale(1.02) translateY(-1px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(0.98) translateY(1px);
+  }
+  75% {
+    opacity: 0.95;
+    transform: scale(1.01) translateY(-0.5px);
+  }
+}
+
+@keyframes flame-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px var(--color-flame),
+      0 0 40px var(--color-ember),
+      0 0 60px var(--color-crimson);
+  }
+  50% {
+    box-shadow:
+      0 0 30px var(--color-flame),
+      0 0 60px var(--color-ember),
+      0 0 90px var(--color-crimson);
+  }
+}
+
+@keyframes ember-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes dark-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes void-glow {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 30px rgba(157, 78, 221, 0.1),
+      0 0 20px rgba(157, 78, 221, 0.2);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 50px rgba(157, 78, 221, 0.2),
+      0 0 40px rgba(157, 78, 221, 0.3);
+  }
+}
+
+@keyframes soul-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+  75% {
+    transform: translateY(5px) rotate(-2deg);
+  }
+}
+
+/* ============================================
+   ユーティリティクラス
+   ============================================ */
+.animate-flicker {
+  animation: flicker 3s ease-in-out infinite;
+}
+
+.animate-flame-pulse {
+  animation: flame-pulse 2s ease-in-out infinite;
+}
+
+.animate-ember-float {
+  animation: ember-float 4s ease-in-out infinite;
+}
+
+.animate-dark-ripple {
+  animation: dark-ripple 2s ease-out infinite;
+}
+
+.animate-void-glow {
+  animation: void-glow 4s ease-in-out infinite;
+}
+
+.animate-soul-float {
+  animation: soul-float 6s ease-in-out infinite;
+}
+
+/* ============================================
+   魔王軍団カードスタイル
+   ============================================ */
+.dark-card {
+  background: linear-gradient(145deg,
+    rgba(26, 26, 46, 0.8) 0%,
+    rgba(18, 18, 26, 0.9) 100%);
+  border: 1px solid rgba(157, 78, 221, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.dark-card:hover {
+  border-color: rgba(157, 78, 221, 0.4);
+  box-shadow:
+    0 0 30px rgba(157, 78, 221, 0.2),
+    inset 0 0 30px rgba(157, 78, 221, 0.05);
+  transform: translateY(-2px);
+}
+
+.dark-card-active {
+  border-color: rgba(255, 69, 0, 0.5);
+  box-shadow:
+    0 0 20px rgba(255, 69, 0, 0.3),
+    inset 0 0 20px rgba(255, 69, 0, 0.1);
+}
+
+/* ============================================
+   スクロールバー
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-nether), var(--color-phantom));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-spectral), var(--color-nether));
+}
+
+/* ============================================
+   モーダルオーバーレイ
+   ============================================ */
+.modal-overlay {
+  background: radial-gradient(circle at center,
+    rgba(10, 10, 15, 0.95) 0%,
+    rgba(10, 10, 15, 0.8) 100%);
+  backdrop-filter: blur(8px);
+}
+
+/* ============================================
+   ステータスインジケーター
+   ============================================ */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background: var(--status-active);
+  box-shadow: 0 0 10px var(--status-active);
+  animation: flicker 2s ease-in-out infinite;
+}
+
+.status-dot.busy {
+  background: var(--status-busy);
+  box-shadow: 0 0 8px var(--status-busy);
+  animation: flicker 1.5s ease-in-out infinite;
+}
+
+.status-dot.idle {
+  background: var(--status-idle);
+}
+
+.status-dot.offline {
+  background: var(--status-offline);
+}
+
+/* ============================================
+   テキストグラデーション
+   ============================================ */
+.text-gradient-flame {
+  background: linear-gradient(135deg, var(--color-flame), var(--color-crimson), var(--color-ember));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-spectral {
+  background: linear-gradient(135deg, var(--color-soul), var(--color-spectral), var(--color-phantom));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-void {
+  background: linear-gradient(135deg, var(--color-spirit), var(--color-soul), var(--color-phantom));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   ボタンスタイル
+   ============================================ */
+.btn-dark {
+  background: linear-gradient(135deg, var(--color-nether), var(--color-phantom));
+  border: 1px solid rgba(157, 78, 221, 0.3);
+  color: var(--color-soul);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-dark:hover {
+  background: linear-gradient(135deg, var(--color-phantom), var(--color-nether));
+  box-shadow: 0 0 20px rgba(157, 78, 221, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-dark:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   ローディングスピナー
+   ============================================ */
+@keyframes spin-dark {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-dark {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(157, 78, 221, 0.1);
+  border-top-color: var(--color-spectral);
+  border-radius: 50%;
+  animation: spin-dark 1s linear infinite;
+}
+
+/* ============================================
+   闇のエフェクト
+   ============================================ */
+.darkness-edge {
+  position: relative;
+}
+
+.darkness-edge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg,
+    rgba(157, 78, 221, 0.5),
+    rgba(255, 69, 0, 0.3),
+    rgba(157, 78, 221, 0.5));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ============================================
+   タスクステータスバー
+   ============================================ */
+.task-status-bar {
+  height: 4px;
+  background: var(--color-void);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.task-status-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg,
+    var(--color-nether),
+    var(--color-spectral),
+    var(--color-soul));
+  transition: width 0.5s ease;
+}
+
+/* ============================================
+   チームグリッド
+   ============================================ */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}
