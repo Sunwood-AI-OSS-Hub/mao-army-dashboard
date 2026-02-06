@@ -39,7 +39,7 @@ export function InfernoStatsCard({
   const { icon: Icon, label } = config[type];
 
   return (
-    <div className="stone-texture p-6 rounded-xl border border-white/5 relative overflow-hidden group hover:border-primary/50 transition-all">
+    <div className="stone-texture p-6 rounded-xl border border-[color:var(--border-weak)] relative overflow-hidden group hover:border-primary/50 transition-all">
       {/* 背景アイコン */}
       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
         <Icon className="w-16 h-16 text-primary" />
@@ -52,7 +52,7 @@ export function InfernoStatsCard({
 
       {/* 値と変化 */}
       <div className="flex items-baseline gap-2">
-        <span className="text-4xl font-black text-white italic ember-text">
+        <span className="text-4xl font-black text-stone-100 italic ember-text">
           {value}
         </span>
         {change && (

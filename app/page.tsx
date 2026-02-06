@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { RefreshCw, X, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
-import heroImage from '../image2.png';
+import heroImageDark from '../image2.png';
+import heroImageLight from '../image3.png';
 import {
   InfernoSidebar,
   InfernoHeader,
@@ -15,6 +16,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TeamInboxesView } from '@/components/AgentInboxView';
 import type { TeamSummary, TeamMonitorData, TeamInboxData } from '@/types';
 import type { SidebarView } from '@/components/InfernoSidebar';
+import type { ThemeMode } from '@/components/InfernoHeader';
 
 type View = SidebarView;
 
@@ -23,6 +25,7 @@ function normalizeQuery(q: string) {
 }
 
 export default function HomePage() {
+  const [theme, setTheme] = React.useState<ThemeMode>('dark');
   const [teams, setTeams] = React.useState<TeamSummary[]>([]);
   const [monitorData, setMonitorData] = React.useState<TeamMonitorData[]>([]);
   const [selectedTeam, setSelectedTeam] = React.useState<TeamMonitorData | null>(null);
@@ -35,6 +38,33 @@ export default function HomePage() {
   const [vaultLoading, setVaultLoading] = React.useState(false);
   const [vaultError, setVaultError] = React.useState<string | null>(null);
   const [vaultData, setVaultData] = React.useState<TeamInboxData[] | null>(null);
+
+  const appName = theme === 'light' ? 'エージェントチームダッシュボード' : '魔王軍 AGI ダッシュボード';
+
+  React.useEffect(() => {
+    // Load theme preference
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') {
+        setTheme(saved);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  React.useEffect(() => {
+    // Apply theme on <html> and update title.
+    const el = document.documentElement;
+    el.classList.toggle('dark', theme === 'dark');
+    el.classList.toggle('light', theme === 'light');
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // ignore
+    }
+    document.title = appName;
+  }, [theme, appName]);
 
   // 総計統計を計算
   const totalMembers = React.useMemo(() => teams.reduce((sum, t) => sum + t.memberCount, 0), [teams]);
@@ -189,19 +219,23 @@ export default function HomePage() {
   }, [view, vaultData, fetchVault]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background-dark">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* サイドバー */}
       <InfernoSidebar
         activeView={view}
         onNavigate={(v) => setView(v)}
         onRefresh={() => fetchTeams()}
         vaultUnreadCount={vaultUnreadCount}
+        theme={theme}
       />
 
       {/* メインコンテンツ */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* ヘッダー */}
         <InfernoHeader
+          appName={appName}
+          theme={theme}
+          onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
           searchQuery={searchQuery}
           onSearchQueryChange={setSearchQuery}
           onOpenVault={() => setView('vault')}
@@ -212,12 +246,12 @@ export default function HomePage() {
         <div className="flex-1 overflow-y-auto p-6 lg:p-8">
           {/* ヒーローセクション */}
           <div className="relative w-full h-64 lg:h-80 rounded-xl overflow-hidden mb-8 glow-red-intense group">
-            <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/20 to-transparent z-10" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background-dark/80 via-transparent to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent z-10" />
 
             {/* ヒーロー背景画像 */}
             <Image
-              src={heroImage}
+              src={theme === 'light' ? heroImageLight : heroImageDark}
               alt=""
               fill
               priority
@@ -235,11 +269,11 @@ export default function HomePage() {
                 </div>
                 <div className="space-y-1">
                   <h1 className="text-4xl lg:text-6xl font-black italic uppercase tracking-tighter text-white ember-text">
-                    魔王軍 AGI
+                    {theme === 'light' ? 'Agent Teams' : '魔王軍 AGI'}
                   </h1>
                   <p className="text-amber-glow font-bold tracking-[0.3em] text-xs lg:text-sm uppercase flex items-center gap-2">
                     <span className="h-px w-6 lg:w-8 bg-amber-glow"></span>
-                    Team Monitor Dashboard
+                    {theme === 'light' ? 'Agent Team Dashboard' : 'Team Monitor Dashboard'}
                   </p>
                 </div>
               </div>
@@ -247,49 +281,49 @@ export default function HomePage() {
           </div>
 
           {/* タブ */}
-          <div className="border-b border-white/5 flex gap-8 lg:gap-10 mb-8">
+          <div className="border-b border-[color:var(--border-weak)] flex gap-8 lg:gap-10 mb-8">
             <button
               type="button"
               onClick={() => setView('overview')}
-              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
-                view === 'overview'
-                  ? 'border-primary text-primary ember-text'
-                  : 'border-transparent text-stone-500 hover:text-white'
-              }`}
-            >
+	              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+	                view === 'overview'
+	                  ? 'border-primary text-primary ember-text'
+	                  : 'border-transparent text-stone-500 hover:text-stone-100'
+	              }`}
+	            >
               Overview
             </button>
             <button
               type="button"
               onClick={() => setView('teams')}
-              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
-                view === 'teams'
-                  ? 'border-primary text-primary ember-text'
-                  : 'border-transparent text-stone-500 hover:text-white'
-              }`}
-            >
+	              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+	                view === 'teams'
+	                  ? 'border-primary text-primary ember-text'
+	                  : 'border-transparent text-stone-500 hover:text-stone-100'
+	              }`}
+	            >
               Team Roster
             </button>
             <button
               type="button"
               onClick={() => setView('missions')}
-              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
-                view === 'missions'
-                  ? 'border-primary text-primary ember-text'
-                  : 'border-transparent text-stone-500 hover:text-white'
-              }`}
-            >
+	              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+	                view === 'missions'
+	                  ? 'border-primary text-primary ember-text'
+	                  : 'border-transparent text-stone-500 hover:text-stone-100'
+	              }`}
+	            >
               Mission Log
             </button>
             <button
               type="button"
               onClick={() => setView('vault')}
-              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
-                view === 'vault'
-                  ? 'border-primary text-primary ember-text'
-                  : 'border-transparent text-stone-500 hover:text-white'
-              }`}
-            >
+	              className={`pb-4 border-b-2 font-bold text-sm tracking-widest uppercase transition-colors ${
+	                view === 'vault'
+	                  ? 'border-primary text-primary ember-text'
+	                  : 'border-transparent text-stone-500 hover:text-stone-100'
+	              }`}
+	            >
               The Vault
               {vaultUnreadCount > 0 ? (
                 <span className="ml-2 inline-flex items-center justify-center bg-lava-red text-white text-[10px] leading-none px-1.5 py-0.5 rounded-full font-bold border border-white/10">
@@ -337,18 +371,18 @@ export default function HomePage() {
           {/* Overview / Teams */}
           {(view === 'overview' || view === 'teams') && (
             <div className="space-y-8">
-              {/* 操作バー */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white uppercase tracking-tight">
-                  {view === 'teams' ? 'Team Roster' : 'Active Legions'}
-                </h2>
+	              {/* 操作バー */}
+	              <div className="flex items-center justify-between">
+	                <h2 className="text-xl font-bold text-stone-100 uppercase tracking-tight">
+	                  {view === 'teams' ? 'Team Roster' : 'Active Legions'}
+	                </h2>
                 <Button
                   data-testid="refresh-button"
                   onClick={fetchTeams}
-                  disabled={loading}
-                  variant="outline"
-                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-white"
-                >
+	                  disabled={loading}
+	                  variant="outline"
+	                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-stone-100"
+	                >
                   <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
@@ -373,24 +407,24 @@ export default function HomePage() {
           )}
 
           {/* Mission Log */}
-          {view === 'missions' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white uppercase tracking-tight">
-                  Mission Log
-                </h2>
+	          {view === 'missions' && (
+	            <div className="space-y-6">
+	              <div className="flex items-center justify-between">
+	                <h2 className="text-xl font-bold text-stone-100 uppercase tracking-tight">
+	                  Mission Log
+	                </h2>
                 <Button
                   onClick={fetchTeams}
-                  disabled={loading}
-                  variant="outline"
-                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-white"
-                >
+	                  disabled={loading}
+	                  variant="outline"
+	                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-stone-100"
+	                >
                   <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
               </div>
 
-              <Card className="bg-stone-900/60 border-white/5">
+              <Card className="bg-stone-900/60 border-[color:var(--border-weak)]">
                 <CardContent className="p-6">
                   {allTasks.length === 0 ? (
                     <div className="text-center py-12 text-stone-500">
@@ -406,7 +440,7 @@ export default function HomePage() {
                             key={`${teamName}:${task.id}`}
                             type="button"
                             onClick={() => fetchTeamDetail(teamName, 'info')}
-                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-all"
+                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-[color:var(--border-weak)] hover:border-primary/30 transition-all"
                           >
                             <div className="flex items-center justify-between gap-4">
                               <div className="min-w-0">
@@ -442,18 +476,18 @@ export default function HomePage() {
           )}
 
           {/* The Vault */}
-          {view === 'vault' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white uppercase tracking-tight">
-                  The Vault (Inboxes)
-                </h2>
+	          {view === 'vault' && (
+	            <div className="space-y-6">
+	              <div className="flex items-center justify-between">
+	                <h2 className="text-xl font-bold text-stone-100 uppercase tracking-tight">
+	                  The Vault (Inboxes)
+	                </h2>
                 <Button
                   onClick={fetchVault}
-                  disabled={vaultLoading}
-                  variant="outline"
-                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-white"
-                >
+	                  disabled={vaultLoading}
+	                  variant="outline"
+	                  className="border-primary/30 hover:bg-primary/20 text-primary hover:text-stone-100"
+	                >
                   <RefreshCw className={`h-4 w-4 mr-2 ${vaultLoading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
@@ -465,7 +499,7 @@ export default function HomePage() {
                 </div>
               ) : null}
 
-              <Card className="bg-stone-900/60 border-white/5">
+              <Card className="bg-stone-900/60 border-[color:var(--border-weak)]">
                 <CardContent className="p-6">
                   {vaultLoading && !vaultData ? (
                     <div className="text-center py-12 text-stone-500">
@@ -484,7 +518,7 @@ export default function HomePage() {
                             key={team.teamName}
                             type="button"
                             onClick={() => fetchTeamDetail(team.teamName, 'inbox')}
-                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-white/5 hover:border-primary/30 transition-all"
+                            className="w-full text-left p-4 rounded-lg bg-black/30 border border-[color:var(--border-weak)] hover:border-primary/30 transition-all"
                           >
                             <div className="flex items-center justify-between gap-4">
                               <div className="min-w-0">
@@ -520,9 +554,9 @@ export default function HomePage() {
           )}
 
           {/* フッター */}
-          <footer className="text-center py-8 border-t border-white/5 mt-12">
+          <footer className="text-center py-8 border-t border-[color:var(--border-weak)] mt-12">
             <p className="text-stone-600 text-sm">
-              魔王軍 AGI ダッシュボード v0.1.0
+              {appName} v0.1.0
             </p>
             <p className="text-stone-700 text-xs mt-1">
               ……ふふ、私がここで待ってるから
@@ -538,41 +572,41 @@ export default function HomePage() {
           className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4"
           onClick={handleCloseModal}
         >
-          <Card
-            className="max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col bg-stone-900/90 border-primary/30"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-6 border-b border-white/5 shrink-0">
-              <h2 className="text-2xl font-bold text-white ember-text">{selectedTeam.config.name}</h2>
-              <button
-                data-testid="modal-close"
-                onClick={handleCloseModal}
-                className="text-stone-500 hover:text-primary transition-colors"
-              >
+	          <Card
+	            className="max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col bg-stone-900/90 border-primary/30"
+	            onClick={(e) => e.stopPropagation()}
+	          >
+            <div className="flex items-center justify-between p-6 border-b border-[color:var(--border-weak)] shrink-0">
+	              <h2 className="text-2xl font-bold text-stone-100 ember-text">{selectedTeam.config.name}</h2>
+	              <button
+	                data-testid="modal-close"
+	                onClick={handleCloseModal}
+	                className="text-stone-500 hover:text-primary transition-colors"
+	              >
                 <X className="h-6 w-6" />
               </button>
             </div>
 
             {/* タブ */}
-            <div className="flex border-b border-white/5 shrink-0">
-              <button
-                onClick={() => setActiveTab('info')}
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'info'
-                    ? 'text-white border-b-2 border-primary bg-primary/10'
-                    : 'text-stone-500 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                チーム情報
-              </button>
+            <div className="flex border-b border-[color:var(--border-weak)] shrink-0">
+	              <button
+	                onClick={() => setActiveTab('info')}
+	                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+	                  activeTab === 'info'
+	                    ? 'text-stone-100 border-b-2 border-primary bg-primary/10'
+	                    : 'text-stone-500 hover:text-stone-100 hover:bg-white/5'
+	                }`}
+	              >
+	                チーム情報
+	              </button>
               <button
                 onClick={() => setActiveTab('inbox')}
-                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                  activeTab === 'inbox'
-                    ? 'text-white border-b-2 border-primary bg-primary/10'
-                    : 'text-stone-500 hover:text-white hover:bg-white/5'
-                }`}
-              >
+	                className={`flex-1 px-6 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+	                  activeTab === 'inbox'
+	                    ? 'text-stone-100 border-b-2 border-primary bg-primary/10'
+	                    : 'text-stone-500 hover:text-stone-100 hover:bg-white/5'
+	                }`}
+	              >
                 <MessageSquare className="h-4 w-4" />
                 メッセージ
                 {teamInboxes && teamInboxes.agents.some(a => a.unreadCount > 0) && (
@@ -599,7 +633,7 @@ export default function HomePage() {
                       {selectedTeam.config.members.map((member) => (
                         <div
                           key={member.agentId}
-                          className="p-3 rounded-lg bg-black/30 border border-white/5"
+                          className="p-3 rounded-lg bg-black/30 border border-[color:var(--border-weak)]"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div>
@@ -636,7 +670,7 @@ export default function HomePage() {
                         {selectedTeam.tasks.map((task) => (
                           <div
                             key={task.id}
-                            className="p-3 rounded-lg bg-black/30 border border-white/5"
+                            className="p-3 rounded-lg bg-black/30 border border-[color:var(--border-weak)]"
                           >
                             <div className="flex items-center justify-between mb-1">
                               <span className="font-semibold text-stone-100">{task.subject}</span>

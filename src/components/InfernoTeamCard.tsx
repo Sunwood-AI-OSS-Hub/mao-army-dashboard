@@ -21,7 +21,7 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
     <div
       data-testid="team-card"
       className={cn(
-        'stone-texture p-6 rounded-xl border border-white/5 relative overflow-hidden transition-all duration-300 cursor-pointer group',
+        'stone-texture p-6 rounded-xl border border-[color:var(--border-weak)] relative overflow-hidden transition-all duration-300 cursor-pointer group',
         'hover:border-primary/50',
         onClick && 'hover:scale-[1.02]',
         team.isActive && 'border-primary/30 glow-red'
@@ -46,7 +46,7 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
       {/* コンテンツ */}
       <div className="relative z-10">
         {/* チーム名 */}
-        <h3 className="text-xl font-bold text-white mb-1 ember-text group-hover:text-primary transition-colors">
+        <h3 className="text-xl font-bold text-stone-100 mb-1 ember-text group-hover:text-primary transition-colors">
           {team.name}
         </h3>
         <p className="text-stone-400 text-sm mb-6 line-clamp-2 min-h-[2.5rem]">
@@ -55,19 +55,19 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
 
         {/* 統計情報 */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-white/5">
+          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-[color:var(--border-weak)]">
             <Users className="mb-1 h-4 w-4 text-primary" />
             <span className="text-2xl font-bold text-stone-100">{team.memberCount}</span>
             <span className="text-[10px] text-stone-500 uppercase">Members</span>
           </div>
 
-          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-white/5">
+          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-[color:var(--border-weak)]">
             <Clock className="mb-1 h-4 w-4 text-amber-glow" />
             <span className="text-2xl font-bold text-stone-100">{team.activeTasks}</span>
             <span className="text-[10px] text-stone-500 uppercase">Active</span>
           </div>
 
-          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-white/5">
+          <div className="flex flex-col items-center rounded-lg bg-black/30 p-3 border border-[color:var(--border-weak)]">
             <CheckCircle2 className="mb-1 h-4 w-4 text-green-400" />
             <span className="text-2xl font-bold text-stone-100">{team.completedTasks}</span>
             <span className="text-[10px] text-stone-500 uppercase">Done</span>
@@ -81,7 +81,7 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
               <span className="text-stone-500 uppercase tracking-wider">Progress</span>
               <span className="font-bold text-stone-300">{completionRate}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-stone-900 border border-white/5">
+            <div className="h-2 overflow-hidden rounded-full bg-stone-900 border border-[color:var(--border-weak)]">
               <div
                 className={cn(
                   'h-full rounded-full transition-all duration-500 ease-out',
@@ -100,7 +100,7 @@ export function InfernoTeamCard({ team, onClick }: InfernoTeamCardProps) {
       </div>
 
       {/* フッター */}
-      <div className="relative z-10 flex items-center justify-between mt-6 pt-4 border-t border-white/5">
+      <div className="relative z-10 flex items-center justify-between mt-6 pt-4 border-t border-[color:var(--border-weak)]">
         <span className="text-[10px] text-stone-600 uppercase font-bold">
           Updated: {new Date(team.lastUpdated).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
         </span>

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('魔王軍 AGI ダッシュボード', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3003');
+    await page.goto('/');
   });
 
   test('ページが表示される', async ({ page }) => {

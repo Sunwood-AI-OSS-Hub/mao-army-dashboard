@@ -1,12 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { Search, Bell } from 'lucide-react';
+import { Search, Bell, Sun, Moon } from 'lucide-react';
 import Image from 'next/image';
+
+export type ThemeMode = 'dark' | 'light';
 
 interface InfernoHeaderProps {
   userName?: string;
   userAvatar?: string;
+  appName: string;
+  theme: ThemeMode;
+  onToggleTheme: () => void;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
   onOpenVault: () => void;
@@ -16,18 +21,35 @@ interface InfernoHeaderProps {
 export function InfernoHeader({
   userName = 'DEMON LORD #001',
   userAvatar = 'https://via.placeholder.com/36',
+  appName,
+  theme,
+  onToggleTheme,
   searchQuery,
   onSearchQueryChange,
   onOpenVault,
   vaultUnreadCount,
 }: InfernoHeaderProps) {
+  const isDark = theme === 'dark';
+
   return (
-    <header className="h-16 flex items-center justify-between px-6 lg:px-8 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0 z-30">
+    <header
+      className={[
+        'h-16 flex items-center justify-between px-6 lg:px-8 backdrop-blur-xl sticky top-0 z-30',
+        isDark ? 'border-b border-white/5 bg-black/40' : 'border-b border-black/10 bg-white/70',
+      ].join(' ')}
+    >
       {/* 左側 - ロゴ */}
       <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-primary text-2xl">security</span>
-        <h2 className="text-lg lg:text-xl font-bold tracking-tighter uppercase italic ember-text text-white">
-          魔王軍 AGI ダッシュボード
+        <span className="material-symbols-outlined text-primary text-2xl">
+          security
+        </span>
+        <h2
+          className={[
+            'text-lg lg:text-xl font-bold tracking-tighter uppercase italic',
+            isDark ? 'ember-text text-white' : 'text-stone-900',
+          ].join(' ')}
+        >
+          {appName}
         </h2>
       </div>
 
@@ -39,7 +61,12 @@ export function InfernoHeader({
           placeholder="Search teams, tasks..."
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
-          className="bg-stone-900 border-white/5 rounded pl-10 pr-4 py-1.5 text-sm focus:ring-primary focus:border-primary w-64 text-stone-300 focus:outline-none focus:ring-1 transition-all"
+          className={[
+            'rounded pl-10 pr-4 py-1.5 text-sm w-64 focus:outline-none focus:ring-1 transition-all',
+            isDark
+              ? 'bg-stone-900 border border-white/5 text-stone-300 focus:ring-primary focus:border-primary'
+              : 'bg-white border border-black/10 text-stone-900 focus:ring-primary focus:border-primary',
+          ].join(' ')}
         />
       </div>
 
@@ -47,8 +74,17 @@ export function InfernoHeader({
       <div className="flex items-center gap-4">
         <button
           type="button"
+          onClick={onToggleTheme}
+          className={isDark ? 'text-stone-500 hover:text-primary transition-colors p-1' : 'text-stone-600 hover:text-primary transition-colors p-1'}
+          aria-label="Toggle theme"
+          title={isDark ? 'Switch to light' : 'Switch to dark'}
+        >
+          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+        <button
+          type="button"
           onClick={onOpenVault}
-          className="relative text-stone-500 hover:text-primary transition-colors p-1"
+          className={isDark ? 'relative text-stone-500 hover:text-primary transition-colors p-1' : 'relative text-stone-600 hover:text-primary transition-colors p-1'}
           aria-label="Open vault"
         >
           <Bell className="w-5 h-5" />
@@ -58,10 +94,12 @@ export function InfernoHeader({
             </span>
           ) : null}
         </button>
-        <div className="h-6 w-[1px] bg-white/5 mx-1 hidden sm:block"></div>
+        <div className={isDark ? 'h-6 w-[1px] bg-white/5 mx-1 hidden sm:block' : 'h-6 w-[1px] bg-black/10 mx-1 hidden sm:block'}></div>
         <div className="flex items-center gap-2 sm:gap-3">
-          <span className="text-xs font-bold text-stone-500 hidden sm:block">{userName}</span>
-          <div className="size-9 rounded-full bg-stone-900 border border-primary/50 glow-red overflow-hidden">
+          <span className={isDark ? 'text-xs font-bold text-stone-500 hidden sm:block' : 'text-xs font-bold text-stone-600 hidden sm:block'}>
+            {userName}
+          </span>
+          <div className={isDark ? 'size-9 rounded-full bg-stone-900 border border-primary/50 glow-red overflow-hidden' : 'size-9 rounded-full bg-white border border-primary/30 overflow-hidden'}>
             <Image
               className="w-full h-full object-cover"
               src={userAvatar}
